@@ -6,7 +6,6 @@ import {
   getLoanInfo,
   TokenPair,
   MainnetOracle,
-  LoanInfo,
 } from 'folks-finance-js-sdk';
 
 type Data = {
@@ -18,6 +17,7 @@ const indexerClient = new Indexer(
   'https://algoindexer.algoexplorerapi.io',
   ''
 );
+
 const APP_DICTIONARY = Object.entries(MainnetTokenPairs).map(([pair, data]) => {
   return {
     pair,

@@ -9,6 +9,6 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  // TODO - get loan info
+  // TODO - only allow access from GH
   return res.status(200).json({ name: 'John Doe' });
 }

@@ -15,11 +15,6 @@ import { useState } from 'react';
 import LoadsGrid from '../components/LoansGrid';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const fetcher = async (input: RequestInfo, init?: RequestInit | undefined) => {
-  console.log(input, init);
-  const res = await fetch(input, init);
-  return res.json();
-};
 
 const Home: NextPage = () => {
   const [values, setValues] = useState({
@@ -27,9 +22,9 @@ const Home: NextPage = () => {
     phone: '',
     ratio: '',
   });
-  const [loading, setLoading] = useState(false);
   const [loans, setLoans] = useState(undefined);
   const [loansLoading, setLoansLoading] = useState(false);
+  const [submittingNotification, setSubmittingNotification] = useState(false);
 
   const handleChange = (
     key: 'wallet' | 'phone' | 'ratio',
@@ -44,9 +39,21 @@ const Home: NextPage = () => {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setSubmittingNotification(true);
+    // const res = await fetch('api/notifications', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Cache-Control': 'max-age=604800',
+    //   },
+    //   body: JSON.stringify({
+    //     phone: '',
+    //     wallet: '',
+    //     escrow: '',
+    //     ratio: ''
+    //   })
+    // });
     await delay(1000);
-    setLoading(false);
+    setSubmittingNotification(false);
   };
 
   const handleGetLoans = async () => {
@@ -146,7 +153,7 @@ const Home: NextPage = () => {
               <Spacer y={2} />
               <Row gap={1} align='center' justify='center'>
                 <Button color='gradient' size='md' onClick={handleSubmit}>
-                  {loading ? (
+                  {submittingNotification ? (
                     <Loading
                       type='points-opacity'
                       color='currentColor'
