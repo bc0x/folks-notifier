@@ -6,7 +6,7 @@ import {
   getLoanInfo,
   TokenPair,
   MainnetOracle,
-} from 'folks-finance-js-sdk';
+} from 'folks-finance-js-sdk/src';
 
 type Data = {
   loans: any[];
