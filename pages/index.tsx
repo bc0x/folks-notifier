@@ -12,6 +12,7 @@ import {
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useState } from 'react';
+import LoadsGrid from '../components/LoansGrid';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const fetcher = async (input: RequestInfo, init?: RequestInit | undefined) => {
@@ -52,11 +53,12 @@ const Home: NextPage = () => {
     setLoansLoading(true);
     const res = await fetch(`api/loans/${values.wallet}`, {
       method: 'GET',
+      headers: {
+        'Cache-Control': 'max-age=604800',
+      },
     });
     const { loans } = await res.json();
-    console.log(loans);
-    setLoans(undefined);
-    await delay(1000);
+    setLoans(loans);
     setLoansLoading(false);
   };
 
@@ -69,7 +71,7 @@ const Home: NextPage = () => {
       </Head>
       <Spacer y={3} />
       <main>
-        <Container sm css={{ minHeight: '90vh' }} justify='center'>
+        <Container sm css={{ minHeight: '80vh' }} justify='center'>
           <Row gap={1} align='center' justify='center'>
             <Text
               h1
@@ -83,12 +85,12 @@ const Home: NextPage = () => {
             </Text>
           </Row>
           <Spacer y={2} />
-          <Row gap={1} justify='space-around' align='flex-end'>
-            <Col span={10}>
+          <Row gap={1} align='flex-end'>
+            <Col span={9}>
               <Input
                 value={values.wallet}
                 fullWidth
-                size='xl'
+                size='md'
                 label='Wallet Address'
                 placeholder='7BZEUIEPHZGDK6E673DVOY6BVCCZC6YFAJ3QWROPBZK5XKGE5GUWDYZRUY'
                 onChange={(e) => handleChange('wallet', e.target.value)}
@@ -97,7 +99,7 @@ const Home: NextPage = () => {
             <Col span={2}>
               <Button
                 color='gradient'
-                size='xl'
+                size='md'
                 onClick={handleGetLoans}
                 disabled={values.wallet.length !== 58}
               >
@@ -114,6 +116,8 @@ const Home: NextPage = () => {
             </Col>
           </Row>
           <Spacer y={2} />
+          {loans && <LoadsGrid loans={loans} />}
+          <Spacer y={2} />
           {loans && (
             <>
               <Row gap={1}>
@@ -121,7 +125,7 @@ const Home: NextPage = () => {
                   <Input
                     value={values.phone}
                     fullWidth
-                    size='xl'
+                    size='md'
                     label='SMS Number'
                     placeholder='+1 (123)123-1234'
                     onChange={(e) => handleChange('phone', e.target.value)}
@@ -131,7 +135,7 @@ const Home: NextPage = () => {
                   <Input
                     value={values.ratio}
                     fullWidth
-                    size='xl'
+                    size='md'
                     label='Collaral Ratio'
                     type='number'
                     placeholder='1.1'
@@ -141,28 +145,26 @@ const Home: NextPage = () => {
               </Row>
               <Spacer y={2} />
               <Row gap={1} align='center' justify='center'>
-                <Col span={4}>
-                  <Button color='gradient' size='xl' onClick={handleSubmit}>
-                    {loading ? (
-                      <Loading
-                        type='points-opacity'
-                        color='currentColor'
-                        size='sm'
-                      />
-                    ) : (
-                      'Submit'
-                    )}
-                  </Button>
-                </Col>
+                <Button color='gradient' size='md' onClick={handleSubmit}>
+                  {loading ? (
+                    <Loading
+                      type='points-opacity'
+                      color='currentColor'
+                      size='md'
+                    />
+                  ) : (
+                    'Submit'
+                  )}
+                </Button>
               </Row>
             </>
           )}
         </Container>
       </main>
-
+      <Spacer y={3} />
       <footer>
         <Container sm justify='center'>
-          <Row align='center' justify='center'>
+          <Row gap={1} align='center' justify='center'>
             <Text
               css={{
                 textGradient: '45deg, $purple500 -20%, $pink500 100%',
