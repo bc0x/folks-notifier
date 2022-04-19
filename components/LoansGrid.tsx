@@ -8,7 +8,7 @@ interface LoansGridProps {
 
 const LoadsGrid = ({ loans, setSelectedLoan }: LoansGridProps) => {
   return (
-    <Grid.Container gap={2}>
+    <Grid.Container gap={1}>
       <Grid sm={6} justify='space-around'>
         {loans.map((loan) => (
           <Card

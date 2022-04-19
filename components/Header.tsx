@@ -1,4 +1,4 @@
-import { Row, Container, Col, Link as UILink } from '@nextui-org/react';
+import { Row, Container, Col, Link as UILink, Text } from '@nextui-org/react';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 
@@ -21,7 +21,10 @@ const Header = () => {
             </UILink>
           </Link>
         </Col>
-        <Col offset={7} span={2}>
+        <Col offset={4} span={3} css={{ marginTop: 1 }}>
+          <Text>({session?.user?.email ?? null})</Text>
+        </Col>
+        <Col span={2}>
           <Link
             href={!session ? '/api/auth/signin' : '/api/auth/signout'}
             passHref

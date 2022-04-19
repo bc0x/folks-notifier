@@ -9,12 +9,19 @@ import {
 } from 'folks-finance-js-sdk/src';
 import { BigIntToNumber } from '../../lib/helpers';
 import prisma from '../../lib/prisma';
+import discord from '../../lib/discord';
 import { getSession } from 'next-auth/react';
+import { Account, LoanNotification, User } from '@prisma/client';
 
 type Data = {
   success: boolean;
   error?: string;
-  loanNotifications?: any[];
+  loanNotifications?: LoanNotification[];
+  account?:
+    | (Account & {
+        user: User;
+      })
+    | null;
 };
 
 const indexerClient = new Indexer(
@@ -22,6 +29,8 @@ const indexerClient = new Indexer(
   'https://algoindexer.algoexplorerapi.io',
   ''
 );
+
+discord.login(process.env.DISCORD_BOT_TOKEN);
 
 export default async function handler(
   req: NextApiRequest,
@@ -33,7 +42,8 @@ export default async function handler(
     case 'POST':
       return await createNotification(req, res);
     case 'OTHER':
-      return await runNotifications(req, res);
+      return await triggerNotifications(req, res);
+    case 'DELETE': // TODO
     default:
       return res
         .status(405)
@@ -79,11 +89,16 @@ async function createNotification(
   return res.status(201).json({ success: true });
 }
 
-async function runNotifications(
+async function triggerNotifications(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const dbLoans = await prisma.loanNotification.findMany();
+  // TODO -- Auth Header
+  const dbLoans = await prisma.loanNotification.findMany({
+    include: {
+      user: true,
+    },
+  });
   for (const dbLoan of dbLoans) {
     const tokenPair: TokenPair = {
       appId: dbLoan.appId,
@@ -103,8 +118,18 @@ async function runNotifications(
       BigIntToNumber(loanInfo.healthFactor, 14) < dbLoan.notifyHealthFactor &&
       (dbLoan.notifiedAt === null || dbLoan?.notifiedAt < shouldNotifyDate)
     ) {
-      // TODO - send text
-      console.log('notified');
+      const account = await prisma.account.findFirst({
+        where: {
+          user: { id: dbLoan.user.id },
+        },
+      });
+      const user = await discord.users.fetch(
+        account?.providerAccountId as string
+      );
+      const msg = `Hey there, you're at risk of getting liquidated: ${
+        dbLoan.pair
+      } health at ${BigIntToNumber(loanInfo.healthFactor, 14)}`;
+      user.send(msg).catch((e) => console.log(e));
       await prisma.loanNotification.update({
         where: {
           id: dbLoan.id,
@@ -125,13 +150,20 @@ async function getNotifications(
   const session = await getSession({ req });
   if (!session)
     return res.status(401).json({ success: false, error: 'Unautharized' });
-  const loanNotifications = await prisma.loanNotification.findMany({
-    where: {
-      user: { email: session?.user?.email },
-    },
-    include: {
-      user: true,
-    },
-  });
-  return res.status(200).json({ success: true, loanNotifications });
+  const [loanNotifications, account] = await Promise.all([
+    prisma.loanNotification.findMany({
+      where: {
+        user: { email: session?.user?.email },
+      },
+    }),
+    prisma.account.findFirst({
+      where: {
+        user: { email: session?.user?.email },
+      },
+      include: {
+        user: true,
+      },
+    }),
+  ]);
+  return res.status(200).json({ success: true, loanNotifications, account });
 }

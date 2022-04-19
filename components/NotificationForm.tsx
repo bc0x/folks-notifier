@@ -9,20 +9,12 @@ import {
   useInput,
 } from '@nextui-org/react';
 import { useState, ChangeEvent } from 'react';
-import { phone as phoneValdation } from 'phone';
 interface NotificationFormProps {
   selectedLoan: any | undefined;
 }
 
 const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
   const { value: ratio, bindings: ratioBinding } = useInput('');
-  const { bindings: phoneBindings } = useInput('');
-  const [santizedPhone, setSantizedPhone] = useState<string | undefined>(
-    undefined
-  );
-  const [phoneHelperText, setPhoneHelperText] = useState<string | undefined>(
-    undefined
-  );
   const [ratioHelperText, setRatioHelperText] = useState<string | undefined>(
     undefined
   );
@@ -33,23 +25,11 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
     const res = await fetch('api/notifications', {
       method: 'POST',
       body: JSON.stringify({
-        phone: santizedPhone,
         notifyHealthFactor: Number(ratio),
         ...selectedLoan,
       }),
     });
     setSubmittingNotification(false);
-  };
-  const handlePhoneChange = (event: ChangeEvent<FormElement>) => {
-    const { isValid, phoneNumber } = phoneValdation(event.target.value);
-    if (!isValid) {
-      setPhoneHelperText('Phone number is invalid.');
-      setSantizedPhone(undefined);
-    } else {
-      setPhoneHelperText(undefined);
-      setSantizedPhone(phoneNumber);
-    }
-    phoneBindings.onChange(event);
   };
 
   const handleRatioChange = (event: ChangeEvent<FormElement>) => {
@@ -62,26 +42,10 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
     ratioBinding.onChange(event);
   };
 
-  const submitDisabled = (): boolean => {
-    if (!ratioHelperText && santizedPhone && santizedPhone.length) return false;
-    return true;
-  };
   return (
     <>
       <Row gap={1}>
-        <Col span={8}>
-          <Input
-            value={phoneBindings.value}
-            fullWidth
-            size='md'
-            label='SMS Number'
-            placeholder='+1 (123)123-1234'
-            onChange={handlePhoneChange}
-            helperText={phoneHelperText}
-            helperColor='error'
-          />
-        </Col>
-        <Col span={4}>
+        <Col span={12}>
           <Input
             value={ratioBinding.value}
             fullWidth
@@ -100,7 +64,7 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
           color='gradient'
           size='md'
           onClick={handleSubmit}
-          disabled={submitDisabled()}
+          disabled={!ratioHelperText ? false : true}
         >
           {submittingNotification ? (
             <Loading type='points-opacity' color='currentColor' size='md' />

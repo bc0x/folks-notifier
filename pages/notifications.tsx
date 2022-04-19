@@ -1,6 +1,8 @@
 import { Container, Row, Text } from '@nextui-org/react';
+import { Account, LoanNotification } from '@prisma/client';
 import type { GetServerSideProps } from 'next';
 import { getSession, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const session = await getSession({ req });
@@ -9,26 +11,45 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     return { props: { loanNotification: [] } };
   }
 
-  const loanNotification = await prisma.loanNotification.findMany({
-    where: {
-      user: { email: session?.user?.email },
-    },
-    include: {
-      user: true,
-    },
-  });
+  const [loanNotifications, account] = await Promise.all([
+    prisma.loanNotification.findMany({
+      where: {
+        user: { email: session?.user?.email },
+      },
+    }),
+    prisma.account.findFirst({
+      where: {
+        user: { email: session?.user?.email },
+      },
+      include: {
+        user: true,
+      },
+    }),
+  ]);
   return {
-    props: { loanNotification: JSON.stringify(loanNotification) },
+    props: { loanNotifications: JSON.stringify(loanNotifications), account },
   };
 };
 
 interface NotificationProps {
-  loanNotification: string;
+  loanNotifications: string;
+  account: Account;
 }
 
-const Notifications = ({ loanNotification }: NotificationProps) => {
+const Notifications = ({ loanNotifications, account }: NotificationProps) => {
   const { data: session } = useSession();
-  const loanNotificationArr: any[] = JSON.parse(loanNotification);
+  const loanNotificationArr: LoanNotification[] = JSON.parse(loanNotifications);
+
+  useEffect(() => {
+    async function fetchData() {
+      // You can await here
+      const res = await fetch('api/notifications', {
+        method: 'GET',
+      });
+      console.log(res);
+    }
+    !session ? null : fetchData();
+  }, [session]);
 
   if (!session) {
     return (

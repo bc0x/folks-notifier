@@ -17,7 +17,6 @@ model LoanNotification {
   userId                            String
   user                              User      @relation(fields: [userId], references: [id])
   notifiedAt                        DateTime?
-  phone                             String
   notifyHealthFactor                Float
   pair                              String
   appId                             Float
