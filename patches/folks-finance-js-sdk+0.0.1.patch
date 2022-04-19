@@ -94,3 +94,155 @@ index 609bec6..7eb3d45 100644
 -  TestnetReserveAddress,
 -};
 +export const TestnetReserveAddress: ReserveAddress = "5ISPVI3JMQ4MP5XWWK4ILLKJAYU34U4TGZGXNC5BKR5AK3JBVAMJYBRYEI";
+diff --git a/node_modules/folks-finance-js-sdk/src/v1/lend/types.ts b/node_modules/folks-finance-js-sdk/src/v1/lend/types.ts
+index 00acdb7..99b3eb6 100644
+--- a/node_modules/folks-finance-js-sdk/src/v1/lend/types.ts
++++ b/node_modules/folks-finance-js-sdk/src/v1/lend/types.ts
+@@ -1,4 +1,4 @@
+-interface Pool {
++export interface Pool {
+   appId: number;
+   assetId: number;
+   fAssetId: number;
+@@ -6,7 +6,7 @@ interface Pool {
+   assetDecimals: number;
+ }
+ 
+-interface PoolInfo {
++export interface PoolInfo {
+   currentRound: number;
+   depositInterestRate: bigint; // 14 d.p.
+   depositInterestIndex: bigint; // 14 d.p.
+@@ -26,13 +26,13 @@ interface PoolInfo {
+   isRewardsPaused: boolean;
+ }
+ 
+-interface LockAndEarn {
++export interface LockAndEarn {
+   appId: number;
+   pool: Pool;
+   linkAddr: string;
+ }
+ 
+-interface LockAndEarnInfo {
++export interface LockAndEarnInfo {
+   currentRound: number;
+   rewardsRatio: bigint; // 14 d.p.
+   timeLocked: bigint;
+@@ -40,7 +40,7 @@ interface LockAndEarnInfo {
+   limit: bigint;
+ }
+ 
+-interface LockedDepositInfo {
++export interface LockedDepositInfo {
+   currentRound: number;
+   escrowAddress: string;
+   userAddress: string;
+@@ -48,12 +48,12 @@ interface LockedDepositInfo {
+   release: bigint;
+ }
+ 
+-interface RewardsAggregator {
++export interface RewardsAggregator {
+   appId: number;
+   pool: Pool;
+ }
+ 
+-interface AssetRewardsInfo {
++export interface AssetRewardsInfo {
+   assetId: number;
+   periodRewards: {
+     claimed: bigint;
+@@ -62,13 +62,13 @@ interface AssetRewardsInfo {
+   }[];
+ }
+ 
+-interface RewardsAggregatorInfo {
++export interface RewardsAggregatorInfo {
+   currentRound: number;
+   vestingPeriodLengths: bigint[];
+   assetsRewards: AssetRewardsInfo[];
+ }
+ 
+-interface StakedRewardsInfo {
++export interface StakedRewardsInfo {
+   currentRound: number;
+   escrowAddress: string;
+   userAddress: string;
+@@ -82,21 +82,21 @@ interface StakedRewardsInfo {
+   }[];
+ }
+ 
+-interface TokenPair {
++export interface TokenPair {
+   appId: number;
+   collateralPool: Pool;
+   borrowPool: Pool;
+   linkAddr: string;
+ }
+ 
+-interface TokenPairInfo {
++export interface TokenPairInfo {
+   currentRound: number;
+   loanToValueRatio: bigint; // 14 d.p.
+   liquidationThreshold: bigint; // 14 d.p.
+   safetyThreshold: bigint; // 14 d.p.
+ }
+ 
+-interface LoanInfo {
++export interface LoanInfo {
+   currentRound: number;
+   escrowAddress: string;
+   userAddress: string;
+@@ -107,46 +107,26 @@ interface LoanInfo {
+   healthFactor: bigint; // 14 d.p.
+ }
+ 
+-interface Oracle {
++export interface Oracle {
+   oracle1AppId: number,
+   oracle2AppId?: number,
+   oracleAdapterAppId: number;
+   decimals: number;
+ }
+ 
+-interface OraclePrice {
++export interface OraclePrice {
+   price: bigint; // price in USD for amount 1 of asset in lowest denomination
+   timestamp: bigint;
+ }
+ 
+-interface OraclePrices {
++export interface OraclePrices {
+   currentRound: number;
+   prices: Record<number, OraclePrice>,
+ }
+ 
+-interface ConversionRate {
++export interface ConversionRate {
+   rate: bigint; // <decimals> d.p.
+   decimals: number;
+ }
+ 
+-type ReserveAddress = string;
+-
+-export {
+-  Pool,
+-  PoolInfo,
+-  LockAndEarn,
+-  LockAndEarnInfo,
+-  LockedDepositInfo,
+-  RewardsAggregator,
+-  AssetRewardsInfo,
+-  RewardsAggregatorInfo,
+-  StakedRewardsInfo,
+-  TokenPair,
+-  TokenPairInfo,
+-  LoanInfo,
+-  Oracle,
+-  OraclePrice,
+-  OraclePrices,
+-  ConversionRate,
+-  ReserveAddress,
+-};
++export type ReserveAddress = string;
