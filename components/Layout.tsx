@@ -1,6 +1,6 @@
 import { Text, Row, Container, Spacer } from '@nextui-org/react';
 import Head from 'next/head';
-import { Dispatch, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import Header from './Header';
 
 interface LayoutProps {

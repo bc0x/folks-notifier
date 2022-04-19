@@ -18,16 +18,17 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     },
   });
   return {
-    props: { loanNotification },
+    props: { loanNotification: JSON.stringify(loanNotification) },
   };
 };
 
 interface NotificationProps {
-  loanNotification: any[];
+  loanNotification: string;
 }
 
 const Notifications = ({ loanNotification }: NotificationProps) => {
   const { data: session } = useSession();
+  const loanNotificationArr: any[] = JSON.parse(loanNotification);
 
   if (!session) {
     return (
@@ -39,11 +40,12 @@ const Notifications = ({ loanNotification }: NotificationProps) => {
     );
   }
 
+  // TODO
   return (
     <Container sm css={{ minHeight: '80vh' }} justify='center'>
-      {loanNotification.map((notification) => (
+      {loanNotificationArr.map((notification) => (
         <Row key={notification.id} gap={1} align='center' justify='center'>
-          <Text>{JSON.stringify(notification)}</Text>
+          <Text>{notification.pair}</Text>
         </Row>
       ))}
     </Container>
