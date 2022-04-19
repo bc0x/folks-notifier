@@ -18,6 +18,7 @@ import NotificationForm from '../components/NotificationForm';
 const Home: NextPage = () => {
   const { bindings: walletBindings } = useInput('');
   const [loans, setLoans] = useState(undefined);
+  console.log(loans);
   const [selectedLoan, setSelectedLoan] = useState<any | undefined>(undefined);
   const [loansLoading, setLoansLoading] = useState(false);
 

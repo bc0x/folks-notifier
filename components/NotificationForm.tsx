@@ -62,7 +62,7 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
   const handleRatioChange = (event: ChangeEvent<FormElement>) => {
     const ratioValue = event.target.value;
     if (Number(ratioValue) < 1.01 || Number(ratioValue) > 1.3) {
-      setRatioHelperText('Ratio must be between 1.0 and 1.3');
+      setRatioHelperText('Ratio must be between 1.01 and 1.3');
     } else {
       setRatioHelperText(undefined);
     }

@@ -42,7 +42,7 @@ export default async function handler(
     );
     if (escrowAddress && escrowAddress.length === 58) {
       const tokenPair: TokenPair = {
-        appId: appId,
+        appId,
         collateralPool,
         borrowPool,
         linkAddr,
@@ -55,26 +55,23 @@ export default async function handler(
           escrowAddress
         );
         loans.push({
-          pair,
-          appId,
-          collateralPool,
-          borrowPool,
-          linkAddr,
+          ...entry,
           escrowAddress: loanInfo.escrowAddress,
           userAddress: loanInfo.userAddress,
-          borrowed:
-            Number(loanInfo.borrowed) /
-            (1 * Math.pow(10, borrowPool.assetDecimals)),
-          collateralBalance:
-            Number(loanInfo.collateralBalance) /
-            (1 * Math.pow(10, collateralPool.assetDecimals)),
-          borrowBalance:
-            Number(loanInfo.borrowBalance) /
-            (1 * Math.pow(10, borrowPool.assetDecimals)),
-          borrowBalanceLiquidationThreshold:
-            Number(loanInfo.borrowBalanceLiquidationThreshold) /
-            (1 * Math.pow(10, borrowPool.assetDecimals)),
-          healthFactor: Number(loanInfo.healthFactor) / 1e14,
+          borrowed: BigIntToNumber(loanInfo.borrowed, borrowPool.assetDecimals),
+          collateralBalance: BigIntToNumber(
+            loanInfo.collateralBalance,
+            collateralPool.assetDecimals
+          ),
+          borrowBalance: BigIntToNumber(
+            loanInfo.borrowBalance,
+            borrowPool.assetDecimals
+          ),
+          borrowBalanceLiquidationThreshold: BigIntToNumber(
+            loanInfo.borrowBalanceLiquidationThreshold,
+            borrowPool.assetDecimals
+          ),
+          healthFactor: BigIntToNumber(loanInfo.healthFactor, 14),
         });
       } catch (e) {
         console.log(e);
@@ -124,4 +121,8 @@ async function getLoanEscrowAddress(
   ) {
     return lastTxn['application-transaction'].accounts[0];
   }
+}
+
+function BigIntToNumber(value: bigint, decimals: number) {
+  return Number(value) / (1 * Math.pow(10, decimals));
 }
