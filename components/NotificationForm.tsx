@@ -32,19 +32,14 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
 
   const handleSubmit = async () => {
     setSubmittingNotification(true);
-    // const res = await fetch('api/notifications', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Cache-Control': 'max-age=604800',
-    //   },
-    //   body: JSON.stringify({
-    //     phone: santizedPhone,
-    //     ratio,
-    //     ...selectedLoan
-    //   })
-    // });
-    await delay(1000);
-    console.log(santizedPhone, ratio, selectedLoan);
+    const res = await fetch('api/notifications', {
+      method: 'POST',
+      body: JSON.stringify({
+        phone: santizedPhone,
+        ratio,
+        ...selectedLoan,
+      }),
+    });
     setSubmittingNotification(false);
   };
   const handlePhoneChange = (event: ChangeEvent<FormElement>) => {
