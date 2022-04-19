@@ -29,8 +29,10 @@ const Home: NextPage = () => {
         'Cache-Control': 'max-age=604800',
       },
     });
-    const { loans } = await res.json();
-    setLoans(loans);
+    if (res.status === 200) {
+      const { loans } = await res.json();
+      setLoans(loans);
+    }
     setLoansLoading(false);
   };
 

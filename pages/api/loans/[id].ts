@@ -7,6 +7,7 @@ import {
   TokenPair,
   MainnetOracle,
 } from 'folks-finance-js-sdk/src';
+import { BigIntToNumber } from '../../../lib/helpers';
 
 type Data = {
   loans: any[];
@@ -30,22 +31,30 @@ const APP_DICTIONARY = Object.entries(MainnetTokenPairs).map(([pair, data]) => {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data | null>
 ) {
+  switch (req.method) {
+    case 'GET':
+      return await getLoans(req, res);
+    default: {
+      console.log('failed');
+      return res.status(405).send(null);
+    }
+  }
+}
+
+async function getLoans(req: NextApiRequest, res: NextApiResponse<Data>) {
   let loans = [];
   const { id } = req.query;
   for (const entry of APP_DICTIONARY) {
-    const { pair, appId, collateralPool, borrowPool, linkAddr } = entry;
+    const { appId, collateralPool, borrowPool } = entry;
     const escrowAddress = await getLoanEscrowAddress(
       id as string,
       appId as number
     );
     if (escrowAddress && escrowAddress.length === 58) {
       const tokenPair: TokenPair = {
-        appId,
-        collateralPool,
-        borrowPool,
-        linkAddr,
+        ...entry,
       };
       try {
         const loanInfo = await getLoanInfo(
@@ -121,8 +130,4 @@ async function getLoanEscrowAddress(
   ) {
     return lastTxn['application-transaction'].accounts[0];
   }
-}
-
-function BigIntToNumber(value: bigint, decimals: number) {
-  return Number(value) / (1 * Math.pow(10, decimals));
 }

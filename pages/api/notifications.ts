@@ -6,6 +6,7 @@ import {
   TokenPair,
   MainnetOracle,
 } from 'folks-finance-js-sdk/src';
+import { BigIntToNumber } from '../../lib/helpers';
 
 type Data = {
   success: boolean;
@@ -51,18 +52,25 @@ const dbLoans = [
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data | null>
 ) {
   switch (req.method) {
     case 'GET':
       return await runNotifications(req, res);
-    case 'POST': {
-      console.log('POST worked', req.body);
-      return res.status(201).json({ success: true });
-    }
+    case 'POST':
+      return await createNotification(req, res);
     default:
-      return res.status(405);
+      return res.status(405).send(null);
   }
+}
+
+async function createNotification(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  const dbLoan = req.body;
+  console.log(dbLoan);
+  return res.status(201).json({ success: true });
 }
 
 async function runNotifications(
@@ -93,8 +101,4 @@ async function runNotifications(
     }
   }
   return res.status(200).json({ success: true });
-}
-
-function BigIntToNumber(value: bigint, decimals: number) {
-  return Number(value) / (1 * Math.pow(10, decimals));
 }
