@@ -10,11 +10,9 @@ import {
 } from '@nextui-org/react';
 import { useState, ChangeEvent } from 'react';
 import { phone as phoneValdation } from 'phone';
-
 interface NotificationFormProps {
   selectedLoan: any | undefined;
 }
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
   const { value: ratio, bindings: ratioBinding } = useInput('');

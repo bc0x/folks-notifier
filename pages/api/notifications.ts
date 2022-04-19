@@ -8,11 +8,13 @@ import {
   Pool,
 } from 'folks-finance-js-sdk/src';
 import { BigIntToNumber } from '../../lib/helpers';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../lib/prisma';
+import { getSession } from 'next-auth/react';
 
 type Data = {
   success: boolean;
   error?: string;
+  loanNotifications?: any[];
 };
 
 const indexerClient = new Indexer(
@@ -21,19 +23,21 @@ const indexerClient = new Indexer(
   ''
 );
 
-const prisma = new PrismaClient();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data | null>
 ) {
   switch (req.method) {
     case 'GET':
-      return await runNotifications(req, res);
+      return await getNotifications(req, res);
     case 'POST':
       return await createNotification(req, res);
+    case 'OTHER':
+      return await runNotifications(req, res);
     default:
-      return res.status(405).send(null);
+      return res
+        .status(405)
+        .json({ success: false, error: 'Unsupported Method' });
   }
 }
 
@@ -41,6 +45,10 @@ async function createNotification(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  const session = await getSession({ req });
+  if (!session)
+    return res.status(401).json({ success: false, error: 'Unautharized' });
+
   const loanRequest = JSON.parse(req.body);
   try {
     const loanNotification = await prisma.loanNotification.create({
@@ -60,6 +68,7 @@ async function createNotification(
         borrowBalanceLiquidationThreshold:
           loanRequest.borrowBalanceLiquidationThreshold,
         healthFactor: loanRequest.healthFactor,
+        user: { connect: { email: session?.user?.email as string } },
       },
     });
   } catch (e) {
@@ -107,4 +116,22 @@ async function runNotifications(
     }
   }
   return res.status(200).json({ success: true });
+}
+
+async function getNotifications(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  const session = await getSession({ req });
+  if (!session)
+    return res.status(401).json({ success: false, error: 'Unautharized' });
+  const loanNotifications = await prisma.loanNotification.findMany({
+    where: {
+      user: { email: session?.user?.email },
+    },
+    include: {
+      user: true,
+    },
+  });
+  return res.status(200).json({ success: true, loanNotifications });
 }

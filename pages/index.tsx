@@ -10,7 +10,6 @@ import {
   useInput,
 } from '@nextui-org/react';
 import type { NextPage } from 'next';
-import Head from 'next/head';
 import { useState } from 'react';
 import LoadsGrid from '../components/LoansGrid';
 import NotificationForm from '../components/NotificationForm';
@@ -37,82 +36,51 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div style={{ padding: '0 2rem' }}>
-      <Head>
-        <title>Folks Notifier</title>
-        <meta name='description' content='Folks Notifier' />
-        <link rel='icon' href='/favicon.ico' />
-      </Head>
+    <Container sm css={{ minHeight: '80vh' }} justify='center'>
+      <Row gap={1} align='center' justify='center'>
+        <Text
+          h1
+          size={80}
+          css={{
+            textGradient: '45deg, $purple500 -20%, $pink500 100%',
+          }}
+          weight='bold'
+        >
+          Folks Notifier
+        </Text>
+      </Row>
       <Spacer y={2} />
-      <main>
-        <Container sm css={{ minHeight: '80vh' }} justify='center'>
-          <Row gap={1} align='center' justify='center'>
-            <Text
-              h1
-              size={80}
-              css={{
-                textGradient: '45deg, $purple500 -20%, $pink500 100%',
-              }}
-              weight='bold'
-            >
-              Folks Notifier
-            </Text>
-          </Row>
-          <Spacer y={2} />
-          <Row gap={1} align='flex-end'>
-            <Col span={9}>
-              <Input
-                value={walletBindings.value}
-                fullWidth
-                size='md'
-                label='Wallet Address'
-                placeholder='7BZEUIEPHZGDK6E673DVOY6BVCCZC6YFAJ3QWROPBZK5XKGE5GUWDYZRUY'
-                onChange={walletBindings.onChange}
-              />
-            </Col>
-            <Col span={2}>
-              <Button
-                color='gradient'
-                size='md'
-                onClick={handleGetLoans}
-                disabled={walletBindings.value.length !== 58}
-              >
-                {loansLoading ? (
-                  <Loading
-                    type='points-opacity'
-                    color='currentColor'
-                    size='sm'
-                  />
-                ) : (
-                  'Get Loans'
-                )}
-              </Button>
-            </Col>
-          </Row>
-          <Spacer y={2} />
-          {loans && (
-            <LoadsGrid loans={loans} setSelectedLoan={setSelectedLoan} />
-          )}
-          <Spacer y={2} />
-          {selectedLoan && <NotificationForm selectedLoan={selectedLoan} />}
-        </Container>
-      </main>
-      <Spacer y={3} />
-      <footer>
-        <Container sm justify='center'>
-          <Row gap={1} align='center' justify='center'>
-            <Text
-              css={{
-                textGradient: '45deg, $purple500 -20%, $pink500 100%',
-              }}
-              weight='bold'
-            >
-              built by bcox
-            </Text>
-          </Row>
-        </Container>
-      </footer>
-    </div>
+      <Row gap={1} align='flex-end'>
+        <Col span={9}>
+          <Input
+            value={walletBindings.value}
+            fullWidth
+            size='md'
+            label='Wallet Address'
+            placeholder='7BZEUIEPHZGDK6E673DVOY6BVCCZC6YFAJ3QWROPBZK5XKGE5GUWDYZRUY'
+            onChange={walletBindings.onChange}
+          />
+        </Col>
+        <Col span={2}>
+          <Button
+            color='gradient'
+            size='md'
+            onClick={handleGetLoans}
+            disabled={walletBindings.value.length !== 58}
+          >
+            {loansLoading ? (
+              <Loading type='points-opacity' color='currentColor' size='sm' />
+            ) : (
+              'Get Loans'
+            )}
+          </Button>
+        </Col>
+      </Row>
+      <Spacer y={2} />
+      {loans && <LoadsGrid loans={loans} setSelectedLoan={setSelectedLoan} />}
+      <Spacer y={2} />
+      {selectedLoan && <NotificationForm selectedLoan={selectedLoan} />}
+    </Container>
   );
 };
 
