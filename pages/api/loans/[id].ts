@@ -56,13 +56,24 @@ export default async function handler(
         );
         loans.push({
           pair,
+          appId,
+          collateralPool,
+          borrowPool,
+          linkAddr,
           escrowAddress: loanInfo.escrowAddress,
           userAddress: loanInfo.userAddress,
-          borrowed: Number(loanInfo.borrowed) / 1e6,
-          collateralBalance: Number(loanInfo.collateralBalance) / 1e6,
-          borrowBalance: Number(loanInfo.borrowBalance) / 1e6,
+          borrowed:
+            Number(loanInfo.borrowed) /
+            (1 * Math.pow(10, borrowPool.assetDecimals)),
+          collateralBalance:
+            Number(loanInfo.collateralBalance) /
+            (1 * Math.pow(10, collateralPool.assetDecimals)),
+          borrowBalance:
+            Number(loanInfo.borrowBalance) /
+            (1 * Math.pow(10, borrowPool.assetDecimals)),
           borrowBalanceLiquidationThreshold:
-            Number(loanInfo.borrowBalanceLiquidationThreshold) / 1e6,
+            Number(loanInfo.borrowBalanceLiquidationThreshold) /
+            (1 * Math.pow(10, borrowPool.assetDecimals)),
           healthFactor: Number(loanInfo.healthFactor) / 1e14,
         });
       } catch (e) {

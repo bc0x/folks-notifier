@@ -1,10 +1,12 @@
 import { Card, Grid, Text, Divider, Button, Row } from '@nextui-org/react';
+import { Dispatch } from 'react';
 
 interface LoansGridProps {
   loans: any[];
+  setSelectedLoan: Dispatch<any>;
 }
 
-const LoadsGrid = ({ loans }: LoansGridProps) => {
+const LoadsGrid = ({ loans, setSelectedLoan }: LoansGridProps) => {
   return (
     <Grid.Container gap={2}>
       <Grid sm={6} justify='space-around'>
@@ -36,7 +38,7 @@ const LoadsGrid = ({ loans }: LoansGridProps) => {
                   color='gradient'
                   onClick={(e) => {
                     e.preventDefault();
-                    console.log(loan);
+                    setSelectedLoan(loan);
                   }}
                 >
                   Select
