@@ -36,7 +36,7 @@ const NotificationForm = ({ selectedLoan }: NotificationFormProps) => {
       method: 'POST',
       body: JSON.stringify({
         phone: santizedPhone,
-        ratio,
+        notifyHealthFactor: Number(ratio),
         ...selectedLoan,
       }),
     });

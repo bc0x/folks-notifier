@@ -5,8 +5,10 @@ import {
   getLoanInfo,
   TokenPair,
   MainnetOracle,
+  Pool,
 } from 'folks-finance-js-sdk/src';
 import { BigIntToNumber } from '../../lib/helpers';
+import { PrismaClient } from '@prisma/client';
 
 type Data = {
   success: boolean;
@@ -19,36 +21,7 @@ const indexerClient = new Indexer(
   ''
 );
 
-const dbLoans = [
-  {
-    phone: '+18033788952',
-    notifyAt: 10,
-    pair: 'ALGO-USDC',
-    appId: 686541542,
-    collateralPool: {
-      appId: 686498781,
-      assetId: 0,
-      fAssetId: 686505742,
-      frAssetId: 686505743,
-      assetDecimals: 6,
-    },
-    borrowPool: {
-      appId: 686500029,
-      assetId: 31566704,
-      fAssetId: 686508050,
-      frAssetId: 686508051,
-      assetDecimals: 6,
-    },
-    linkAddr: 'XMW3WFSMMHV54FAP5ROYPB6LUDBUAKSQBZVI2PIX6OR3NWQWBXKUW7KBGY',
-    escrowAddress: 'JSGE4T47726R53IZGSXL457DH24CGDFZH52WLT4SOCZMYB5IUM7UJ76MWA',
-    userAddress: 'VMBD7IS4GAYKWLK74RM3SQNYC2OHLCULOXMMP4Q5HDKW72OID7V6YSOB7A',
-    borrowed: 5,
-    collateralBalance: 49.955911,
-    borrowBalance: 5.000768,
-    borrowBalanceLiquidationThreshold: 29.317918,
-    healthFactor: 5.86268309187708,
-  },
-];
+const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,
@@ -68,8 +41,32 @@ async function createNotification(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const dbLoan = req.body;
-  console.log(dbLoan);
+  const loanRequest = JSON.parse(req.body);
+  try {
+    const loanNotification = await prisma.loanNotification.create({
+      data: {
+        phone: loanRequest.phone,
+        notifyHealthFactor: loanRequest.notifyHealthFactor,
+        pair: loanRequest.pair,
+        appId: loanRequest.appId,
+        collateralPool: loanRequest.collateralPool,
+        borrowPool: loanRequest.borrowPool,
+        linkAddr: loanRequest.linkAddr,
+        escrowAddress: loanRequest.escrowAddress,
+        userAddress: loanRequest.userAddress,
+        borrowed: loanRequest.borrowed,
+        collateralBalance: loanRequest.collateralBalance,
+        borrowBalance: loanRequest.borrowBalance,
+        borrowBalanceLiquidationThreshold:
+          loanRequest.borrowBalanceLiquidationThreshold,
+        healthFactor: loanRequest.healthFactor,
+      },
+    });
+  } catch (e) {
+    return res
+      .status(400)
+      .json({ success: false, error: 'Error creating notification.' });
+  }
   return res.status(201).json({ success: true });
 }
 
@@ -77,12 +74,12 @@ async function runNotifications(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  // TODO - get loans from DB
+  const dbLoans = await prisma.loanNotification.findMany();
   for (const dbLoan of dbLoans) {
     const tokenPair: TokenPair = {
       appId: dbLoan.appId,
-      collateralPool: dbLoan.collateralPool,
-      borrowPool: dbLoan.borrowPool,
+      collateralPool: dbLoan.collateralPool as unknown as Pool,
+      borrowPool: dbLoan.borrowPool as unknown as Pool,
       linkAddr: dbLoan.linkAddr,
     };
     const loanInfo = await getLoanInfo(
@@ -91,13 +88,22 @@ async function runNotifications(
       MainnetOracle,
       dbLoan.escrowAddress
     );
-    if (BigIntToNumber(loanInfo.healthFactor, 14) < dbLoan.notifyAt) {
-      // TODO - true - notify & update row
-      console.log(
-        'should notify',
-        BigIntToNumber(loanInfo.healthFactor, 14),
-        dbLoan.phone
-      );
+    var shouldNotifyDate = new Date();
+    shouldNotifyDate.setDate(shouldNotifyDate.getDate() - 1);
+    if (
+      BigIntToNumber(loanInfo.healthFactor, 14) < dbLoan.notifyHealthFactor &&
+      (dbLoan.notifiedAt === null || dbLoan?.notifiedAt < shouldNotifyDate)
+    ) {
+      // TODO - send text
+      console.log('notified');
+      await prisma.loanNotification.update({
+        where: {
+          id: dbLoan.id,
+        },
+        data: {
+          notifiedAt: new Date().toISOString(),
+        },
+      });
     }
   }
   return res.status(200).json({ success: true });
