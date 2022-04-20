@@ -1,4 +1,5 @@
 // lib/discord.ts
+// having to use an old version due to vercel node v14
 import { Client } from 'discord.js';
 
 let discord: Client;
