@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
-import discord from '../../lib/discord';
+import prisma from '../../../lib/prisma';
+import discord from '../../../lib/discord';
 import { getSession } from 'next-auth/react';
 import { Account, LoanNotification, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -81,20 +81,10 @@ async function getNotifications(
   const session = await getSession({ req });
   if (!session)
     return res.status(401).json({ success: false, error: 'Unautharized' });
-  const [loanNotifications, account] = await Promise.all([
-    prisma.loanNotification.findMany({
-      where: {
-        user: { email: session?.user?.email },
-      },
-    }),
-    prisma.account.findFirst({
-      where: {
-        user: { email: session?.user?.email },
-      },
-      include: {
-        user: true,
-      },
-    }),
-  ]);
-  return res.status(200).json({ success: true, loanNotifications, account });
+  const loanNotifications = await prisma.loanNotification.findMany({
+    where: {
+      user: { email: session?.user?.email },
+    },
+  });
+  return res.status(200).json({ success: true, loanNotifications });
 }
