@@ -29,7 +29,8 @@ const Layout = ({ children }: LayoutProps) => {
               }}
               weight='bold'
             >
-              built by bcox
+              Donations:
+              VMBD7IS4GAYKWLK74RM3SQNYC2OHLCULOXMMP4Q5HDKW72OID7V6YSOB7A
             </Text>
           </Row>
         </Container>
