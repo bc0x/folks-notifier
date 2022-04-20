@@ -1,59 +1,40 @@
 import { Container, Row, Text } from '@nextui-org/react';
-import { Account, LoanNotification } from '@prisma/client';
-import type { GetServerSideProps } from 'next';
-import { getSession, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getSession({ req });
-  if (!session) {
-    res.statusCode = 401;
-    return { props: { loanNotification: [] } };
-  }
-
-  const [loanNotifications, account] = await Promise.all([
-    prisma.loanNotification.findMany({
-      where: {
-        user: { email: session?.user?.email },
-      },
-    }),
-    prisma.account.findFirst({
-      where: {
-        user: { email: session?.user?.email },
-      },
-      include: {
-        user: true,
-      },
-    }),
-  ]);
-  return {
-    props: { loanNotifications: JSON.stringify(loanNotifications), account },
-  };
-};
-
-interface NotificationProps {
-  loanNotifications: string;
-  account: Account;
-}
-
-const Notifications = ({ loanNotifications, account }: NotificationProps) => {
-  const { data: session } = useSession();
-  const loanNotificationArr: LoanNotification[] = loanNotifications
-    ? JSON.parse(loanNotifications)
-    : [];
+const Notifications = () => {
+  const { data: session, status } = useSession();
+  const [loanNotifications, setLoanNotifications] = useState<any[]>([]);
+  const [account, setAccount] = useState<any>();
+  const [loading, setLoading] = useState<any>(false);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       // You can await here
       const res = await fetch('api/notifications', {
         method: 'GET',
       });
-      console.log(res);
+      const body = await res.json();
+      console.log(body);
+      setLoanNotifications(body.loanNotifications);
+      setAccount(body.acount);
+      setLoading(false);
     }
     !session ? null : fetchData();
   }, [session]);
 
-  if (!session) {
+  if (status === 'loading' || loading) {
+    return (
+      <Container sm css={{ minHeight: '80vh' }} justify='center'>
+        <Row gap={1} align='center' justify='center'>
+          <Text h4>Loading...</Text>
+        </Row>
+      </Container>
+    );
+  }
+
+  if (status === 'unauthenticated') {
     return (
       <Container sm css={{ minHeight: '80vh' }} justify='center'>
         <Row gap={1} align='center' justify='center'>
@@ -66,9 +47,9 @@ const Notifications = ({ loanNotifications, account }: NotificationProps) => {
   // TODO
   return (
     <Container sm css={{ minHeight: '80vh' }} justify='center'>
-      {loanNotificationArr.map((notification) => (
-        <Row key={notification.id} gap={1} align='center' justify='center'>
-          <Text>{notification.pair}</Text>
+      {loanNotifications.map((notification) => (
+        <Row key={notification?.id} gap={1} align='center' justify='center'>
+          <Text>{notification?.pair}</Text>
         </Row>
       ))}
     </Container>
