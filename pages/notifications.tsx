@@ -38,7 +38,9 @@ interface NotificationProps {
 
 const Notifications = ({ loanNotifications, account }: NotificationProps) => {
   const { data: session } = useSession();
-  const loanNotificationArr: LoanNotification[] = JSON.parse(loanNotifications);
+  const loanNotificationArr: LoanNotification[] = loanNotifications
+    ? JSON.parse(loanNotifications)
+    : [];
 
   useEffect(() => {
     async function fetchData() {

@@ -1,5 +1,4 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Indexer } from 'algosdk';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {
   MainnetTokenPairs,
@@ -8,16 +7,11 @@ import {
   MainnetOracle,
 } from 'folks-finance-js-sdk/src';
 import { BigIntToNumber } from '../../../lib/helpers';
+import indexer from '../../../lib/indexer';
 
 type Data = {
   loans: any[];
 };
-
-const indexerClient = new Indexer(
-  'null',
-  'https://algoindexer.algoexplorerapi.io',
-  ''
-);
 
 const APP_DICTIONARY = Object.entries(MainnetTokenPairs).map(([pair, data]) => {
   return {
@@ -58,7 +52,7 @@ async function getLoans(req: NextApiRequest, res: NextApiResponse<Data>) {
       };
       try {
         const loanInfo = await getLoanInfo(
-          indexerClient,
+          indexer,
           tokenPair,
           MainnetOracle,
           escrowAddress
@@ -102,7 +96,7 @@ async function getLoanEscrowAddress(
   let lastTxn;
 
   // first call
-  txns = await indexerClient
+  txns = await indexer
     .searchForTransactions()
     .address(userAddress)
     .applicationID(tokenPairAppId)
@@ -113,7 +107,7 @@ async function getLoanEscrowAddress(
   // loop until we have the last txn
   while (noOfTxns === 1000) {
     const nextToken = txns['next-token'];
-    txns = await indexerClient
+    txns = await indexer
       .searchForTransactions()
       .address(userAddress)
       .applicationID(tokenPairAppId)

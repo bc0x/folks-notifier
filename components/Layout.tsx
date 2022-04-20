@@ -13,7 +13,7 @@ const Layout = ({ children }: LayoutProps) => {
       <Head>
         <title>Folks Notifier</title>
         <meta name='description' content='Folks Notifier' />
-        <link rel='icon' href='/favicon.ico' />
+        <link rel='icon' href='/folks-finance.png' />
       </Head>
       <Spacer y={1} />
       <Header />
