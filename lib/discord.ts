@@ -1,13 +1,13 @@
 // lib/discord.ts
-import { Client, Intents } from 'discord.js';
+import { Client } from 'discord.js';
 
 let discord: Client;
 
 if (process.env.NODE_ENV === 'production') {
-  discord = new Client({ intents: [Intents.FLAGS.GUILDS] });
+  discord = new Client();
 } else {
   if (!global.discord) {
-    global.discord = new Client({ intents: [Intents.FLAGS.GUILDS] });
+    global.discord = new Client();
   }
   discord = global.discord;
 }
