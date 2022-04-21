@@ -22,6 +22,13 @@ const Header = () => {
             </UILink>
           </Link>
         </Col>
+        <Col css={{ width: 'auto', minWidth: 110 }}>
+          <Link href='/liquidations' passHref>
+            <UILink block color='secondary'>
+              Hall of Ls
+            </UILink>
+          </Link>
+        </Col>
         <Col css={{ width: 'auto', minWidth: 128 }}>
           <Link href={inviteUrl} passHref>
             <UILink target='_blank' rel='noreferrer' block color='secondary'>
