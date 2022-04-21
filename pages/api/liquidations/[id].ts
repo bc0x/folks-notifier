@@ -1,15 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {
-  MainnetTokenPairs,
-  getLoanInfo,
-  TokenPair,
-  MainnetOracle,
-  MainnetTokenPairKey,
-  TokenPairInfo,
-} from 'folks-finance-js-sdk/src';
-import { BigIntToNumber } from '../../../lib/helpers';
-import indexer from '../../../lib/indexer';
+import prisma from '../../../lib/prisma';
 import { Liquidation } from '@prisma/client';
 
 type Data = {
